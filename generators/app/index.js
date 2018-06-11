@@ -4,6 +4,9 @@ const chalk = require('chalk');
 const yosay = require('yosay');
 
 module.exports = class extends Generator {
+  constructor(args, opts) {
+    super(args, opts)
+  }
   prompting() {
     // Have Yeoman greet the user.
     this.log(
@@ -14,8 +17,8 @@ module.exports = class extends Generator {
       {
         type: 'input',
         name: 'fileUpper',
-        message: 'name of file?',
-        default: 'example'
+        message: 'nombre del recurso: ',
+        default: 'ejm: Program'
       }
     ];
 
@@ -55,27 +58,45 @@ module.exports = class extends Generator {
 
 
     const handlerModule = this.fs.read('src/handlers/handler.module.ts');
-    handlerModule.replace(`
-  ]
-})`, `,\n${this.props.fileUpper}Handler
-]
-})`);
-    handlerModule.replace(`
-@NgModule({`,`import { ${this.props.fileUpper}Handler } from './${this.props.fileLower}.handler';
+    let newhandlerModule = handlerModule
+        .replace(`\n    //handlers`, `,\n   ${this.props.fileUpper}Handler\n    //handlers`);
+    newhandlerModule = newhandlerModule
+        .replace(`@NgModule({`,
+              `import { ${this.props.fileUpper}Handler } from './${this.props.fileLower}.handler';
+          \n@NgModule({`);
+    this.fs.write('src/handlers/handler.module.ts', newhandlerModule);
 
-@NgModule({`);
-    this.fs.write('src/handlers/handler.module.ts', handlerModule);
+
+
+    const providerModule = this.fs.read('src/providers/provider.module.ts');
+    let newproviderModule = providerModule
+        .replace(`\n    //providers`, `,${this.props.fileUpper}Provider\n    //providers`);
+    newproviderModule = newproviderModule
+        .replace(`@NgModule({`,
+              `import { ${this.props.fileUpper}Provider } from './${this.props.fileLower}.provider';
+          \n@NgModule({`);
+    this.fs.write('src/providers/provider.module.ts', newproviderModule);
+
+
+    const storeModule = this.fs.read('src/store/store.module.ts');
+    let newstoreModule = storeModule
+        .replace(`\n    //stores`, `, ${this.props.fileUpper}Store\n    //stores`);
+    newstoreModule = newstoreModule
+        .replace(`@NgModule({`,
+              `import { ${this.props.fileUpper}Store } from './${this.props.fileLower}.store';
+          \n@NgModule({`);
+    this.fs.write('src/store/store.module.ts', newstoreModule);
+
+
+
 
     const routes = this.fs.read('src/routes.ts')
-    routes.replace(`API_GESCO,
-    nodes: toObj([`,`API_GESCO,
-    nodes: toObj([
-      ${this.props.fileLower},`)
-      this.fs.write('src/routes.ts', routes);
+    const newroutes= routes.replace(`\n    //routes`,`,\n   ${this.props.fileLower}\n    //routes`)
+      this.fs.write('src/routes.ts', newroutes);
 
   }
 
   install() {
-    this.installDependencies();
+    // this.installDependencies();
   }
 };
