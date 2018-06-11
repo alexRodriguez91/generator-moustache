@@ -1,0 +1,9 @@
+{
+  "generator-node": {
+    "promptValues": {
+      "authorName": "Alejandro Rodriguez",
+      "authorEmail": "alejandro.rod.91@gmail.com",
+      "authorUrl": ""
+    }
+  }
+}
