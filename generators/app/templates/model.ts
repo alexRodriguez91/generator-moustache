@@ -1,17 +1,14 @@
-import { propName } from '../app-variables';
-import { primary, foreign, toList } from '../decorators';
+import { primary, foreign } from '../decorators';
+import { model } from './model.class';
 
-export class <%= fileUpper %> {
+export class <%= props.model %> extends model {
   @primary id?: number;
-  name: string;
-  @foreign example: number;
+  //example foregin keys:
+  // @foreign prop_id: any;
   
-
-  foreigns: any = {}
-  @toList joins;
-
   constructor() {
-    this.joins = {
+    super()
+    this.joinNodes = {
       example: 'example_id'
     }
   }

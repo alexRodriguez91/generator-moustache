@@ -1,14 +1,14 @@
-import { <%= fileUpper %>Store } from './../store/<%= fileLower %>.store';
-import { <%= fileUpper %> } from '../models/<%= fileLower %>.model';
+import { <%= props.model %>Store } from './../store/<%= props.modelLowCase %>.store';
+import { <%= props.model %> } from '../models/<%= props.modelLowCase %>.model';
 import { Injectable } from '@angular/core';
 import { MainHandler } from './main.handler';
 
 
 @Injectable()
-export class <%= fileUpper %>Handler extends MainHandler <<%= fileUpper %>> {
+export class <%= props.model %>Handler extends MainHandler <<%= props.model %>> {
   
-  constructor(public <%= fileLower %>Store: <%= fileUpper %>Store) {
-    super(<%= fileLower %>Store, new <%= fileUpper %>())
+  constructor(public <%= props.modelLowCase %>Store: <%= props.model %>Store) {
+    super(<%= props.modelLowCase %>Store, new <%= props.model %>())
   }
   
 }

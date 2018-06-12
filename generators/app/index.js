@@ -2,11 +2,9 @@
 const Generator = require('yeoman-generator');
 const chalk = require('chalk');
 const yosay = require('yosay');
+const update = require('./updateFiles.js');
 
 module.exports = class extends Generator {
-  constructor(args, opts) {
-    super(args, opts)
-  }
   prompting() {
     // Have Yeoman greet the user.
     this.log(
@@ -16,87 +14,76 @@ module.exports = class extends Generator {
     const prompts = [
       {
         type: 'input',
-        name: 'fileUpper',
-        message: 'nombre del recurso: ',
-        default: 'ejm: Program'
+        name: 'model',
+        message: 'nombre del modelo: ',
+        default: 'singular'
+      },
+      {
+        type: 'input',
+        name: 'node',
+        message: 'nombre del nodo: ',
+        default: 'plurales'
+      },
+      {
+        type: 'input',
+        name: 'api',
+        message: 'nombre del API: ',
+        default: 'master'
       }
     ];
 
     return this.prompt(prompts).then(props => {
       // To access props later use this.props.someAnswer;
       this.props = props;
-      
     });
   }
 
   writing() {
-    this.props.fileUpper =
-        this.props.fileUpper.trim()[0].toUpperCase() + this.props.fileUpper.slice(1);
-      this.props.fileLower = this.props.fileUpper.toLowerCase();
+    this.props.model =
+      this.props.model.trim()[0].toUpperCase() + this.props.model.slice(1);
+    this.props.modelLowCase = this.props.model.toLowerCase();
+    this.props.node = this.props.node.trim()[0].toUpperCase() + this.props.node.slice(1);
+    this.props.nodeLowCase = this.props.node.toLowerCase();
 
-
-    this.fs.copyTpl (
+    this.fs.copyTpl(
       this.templatePath('provider.ts'),
-      this.destinationPath('src/providers/' + this.props.fileLower + '.provider.ts'),
-      { fileUpper: this.props.fileUpper, fileLower: this.props.fileLower }
+      this.destinationPath('src/providers/' + this.props.modelLowCase + '.provider.ts'),
+      { props: this.props }
     );
-    this.fs.copyTpl (
+    this.fs.copyTpl(
       this.templatePath('model.ts'),
-      this.destinationPath('src/models/' + this.props.fileLower + '.model.ts'),
-      { fileUpper: this.props.fileUpper, fileLower: this.props.fileLower }
+      this.destinationPath('src/models/' + this.props.modelLowCase + '.model.ts'),
+      { props: this.props }
     );
-    this.fs.copyTpl (
+    this.fs.copyTpl(
       this.templatePath('handler.ts'),
-      this.destinationPath('src/handlers/' + this.props.fileLower + '.handler.ts'),
-      { fileUpper: this.props.fileUpper, fileLower: this.props.fileLower }
+      this.destinationPath('src/handlers/' + this.props.modelLowCase + '.handler.ts'),
+      { props: this.props }
     );
-    this.fs.copyTpl (
+    this.fs.copyTpl(
       this.templatePath('store.ts'),
-      this.destinationPath('src/store/' + this.props.fileLower + '.store.ts'),
-      { fileUpper: this.props.fileUpper, fileLower: this.props.fileLower }
+      this.destinationPath('src/store/' + this.props.modelLowCase + '.store.ts'),
+      { props: this.props }
     );
-
 
     const handlerModule = this.fs.read('src/handlers/handler.module.ts');
-    let newhandlerModule = handlerModule
-        .replace(`\n    //handlers`, `,\n   ${this.props.fileUpper}Handler\n    //handlers`);
-    newhandlerModule = newhandlerModule
-        .replace(`@NgModule({`,
-              `import { ${this.props.fileUpper}Handler } from './${this.props.fileLower}.handler';
-          \n@NgModule({`);
+    let newhandlerModule = update.handler(handlerModule, this.props);
     this.fs.write('src/handlers/handler.module.ts', newhandlerModule);
 
-
-
     const providerModule = this.fs.read('src/providers/provider.module.ts');
-    let newproviderModule = providerModule
-        .replace(`\n    //providers`, `,${this.props.fileUpper}Provider\n    //providers`);
-    newproviderModule = newproviderModule
-        .replace(`@NgModule({`,
-              `import { ${this.props.fileUpper}Provider } from './${this.props.fileLower}.provider';
-          \n@NgModule({`);
+    let newproviderModule = update.providers(providerModule, this.props);
     this.fs.write('src/providers/provider.module.ts', newproviderModule);
 
-
     const storeModule = this.fs.read('src/store/store.module.ts');
-    let newstoreModule = storeModule
-        .replace(`\n    //stores`, `, ${this.props.fileUpper}Store\n    //stores`);
-    newstoreModule = newstoreModule
-        .replace(`@NgModule({`,
-              `import { ${this.props.fileUpper}Store } from './${this.props.fileLower}.store';
-          \n@NgModule({`);
+    let newstoreModule = update.store(storeModule, this.props);
     this.fs.write('src/store/store.module.ts', newstoreModule);
 
-
-
-
-    const routes = this.fs.read('src/routes.ts')
-    const newroutes= routes.replace(`\n    //routes`,`,\n   ${this.props.fileLower}\n    //routes`)
-      this.fs.write('src/routes.ts', newroutes);
-
+    const routes = this.fs.read('src/routes.ts');
+    const newroutes = update.routes(routes, this.props);
+    this.fs.write('src/routes.ts', newroutes);
   }
 
   install() {
-    // this.installDependencies();
+    // This.installDependencies();
   }
 };
