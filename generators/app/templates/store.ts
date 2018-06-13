@@ -6,7 +6,7 @@ import { routes } from '../routes';
 import { MainStore } from './store.class';
 
 @Injectable()
-export class <%= props.model %>Store extends MainStore<<%= props.model %>> {
+export class <%= props.model %>Store extends Store<<%= props.model %>> {
 
   type = routes.<%=props.api%>.nodes.<%= props.nodeLowCase %>;
 
